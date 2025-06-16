@@ -54,3 +54,6 @@ try(Scanner scanner = new Scanner(System.in);
 ```
 
 There is a demo agent using Neo4j in src/main/java/org/bergman/agentic/demo/
+
+Note that for this to work, your java project must be compiled with the -parameters option (for the method
+parameters to be available in refactoring).
