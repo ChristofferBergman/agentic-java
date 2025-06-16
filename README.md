@@ -32,6 +32,10 @@ call to the static registerAgent() method to register it (this should only be ca
 your application starts). The return value of that is the assistant id to use as the first parameter in the
 call to the constructor.
 
+```
+System.out.println(AbstractAgent.registerAgent(MyAgent.class, "sk-proj-......."));
+```
+
 To use the agent you create an agent thread object that is used for prompting the agent. You can continue
 a conversation until the agent thread is closed (which causes the thread to be deleted on the server).
 
