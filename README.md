@@ -42,14 +42,14 @@ a conversation until the agent thread is closed (which causes the thread to be d
 ```
 MyAgent agent = new MyAgent();
 try(Scanner scanner = new Scanner(System.in);
-	AbstractAgent.AgentThread thread = agent.createThread()) {
-	while (true) {
-		String input = scanner.nextLine();
-		if (input.trim().equalsIgnoreCase("exit")) {
-			break;
-		}
-		System.out.println(thread.promptAgent(input));
-	}
+    AbstractAgent.AgentThread thread = agent.createThread()) {
+  while (true) {
+    String input = scanner.nextLine();
+    if (input.trim().equalsIgnoreCase("exit")) {
+      break;
+    }
+    System.out.println(thread.promptAgent(input));
+  }
 }
 ```
 
