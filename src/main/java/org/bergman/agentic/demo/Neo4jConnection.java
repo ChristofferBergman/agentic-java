@@ -67,7 +67,7 @@ public class Neo4jConnection implements AutoCloseable, OpenAIConnection {
 		var query = new Query(
 				"""
 				MATCH (q:Post) WHERE elementId(q) = $question
-				MATCH (q)-[:ACCEPTED_ANSWER]->(post:Post)
+				OPTIONAL MATCH (q)-[:ACCEPTED_ANSWER]->(post:Post)
 				RETURN post {.score, .body, .postType, id: elementId(post), created: toString(post.created)}
 				""",
 				Map.of("question", questionId));
@@ -142,7 +142,7 @@ public class Neo4jConnection implements AutoCloseable, OpenAIConnection {
 		var query = new Query(
 				"""
 				MATCH (e) WHERE elementId(e) = $entity
-				MATCH (e)-[:PARENT|POST]->(post:Post)
+				OPTIONAL MATCH (e)-[:PARENT|POST]->(post:Post)
 				RETURN post {.score, .body, .postType, id: elementId(post), created: toString(post.created)}
 				""",
 				Map.of("entity", entityId));
