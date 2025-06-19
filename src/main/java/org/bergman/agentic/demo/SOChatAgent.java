@@ -16,9 +16,13 @@ public class SOChatAgent extends AbstractAgent implements OpenAIConnection {
 	private static final String ASSISTANT_ID = "asst_********************";
 	private static final long TIMEOUT_MS = 60000;
 	private static final boolean DEBUG = true;
+	
+	private final Neo4jConnection neo4j;
 
-	protected SOChatAgent() {
+	protected SOChatAgent(Neo4jConnection neo4j) {
 		super(API_KEY, ASSISTANT_ID, TIMEOUT_MS, DEBUG);
+		
+		this.neo4j = neo4j;
 	}
 	
 	@description(
@@ -28,9 +32,7 @@ public class SOChatAgent extends AbstractAgent implements OpenAIConnection {
 	public Object findRelevantQuestions(
 			@description("The question as asked by the user") String userQuestion
 			) throws Exception {
-		try(Neo4jConnection neo4j = new Neo4jConnection()) {
-			return neo4j.getRelevantQuestions(userQuestion);
-		}
+		return neo4j.getRelevantQuestions(userQuestion);
 	}
 
 	@description(
@@ -41,9 +43,7 @@ public class SOChatAgent extends AbstractAgent implements OpenAIConnection {
 	public Object retrieveThread(
 			@description("The id of the question/topic to get the thread for") String questionId
 			) throws Exception {
-		try(Neo4jConnection neo4j = new Neo4jConnection()) {
-			return neo4j.getThread(questionId);
-		}
+		return neo4j.getThread(questionId);
 	}
 
 	@description(
@@ -54,13 +54,11 @@ public class SOChatAgent extends AbstractAgent implements OpenAIConnection {
 	public Object retrieveAcceptedAnswer(
 			@description("The id of the question/topic to get the accepted answer for") String questionId
 			) throws Exception {
-		try(Neo4jConnection neo4j = new Neo4jConnection()) {
-			var result = neo4j.getAcceptedAnswer(questionId);
-			if (result == null) {
-				return "No accepted answer";
-			}
-			return result;
+		var result = neo4j.getAcceptedAnswer(questionId);
+		if (result == null) {
+			return "No accepted answer";
 		}
+		return result;
 	}
 
 	@description(
@@ -71,9 +69,7 @@ public class SOChatAgent extends AbstractAgent implements OpenAIConnection {
 	public Object retrieveComments(
 			@description("The id of the post to get the comments for") String postId
 			) throws Exception {
-		try(Neo4jConnection neo4j = new Neo4jConnection()) {
-			return neo4j.getComments(postId);
-		}
+		return neo4j.getComments(postId);
 	}
 
 	@description(
@@ -83,9 +79,7 @@ public class SOChatAgent extends AbstractAgent implements OpenAIConnection {
 	public Object getUser(
 			@description("The id of the post (question or answer) or comment for which to get the user who posted.") String entityId
 			) throws Exception {
-		try(Neo4jConnection neo4j = new Neo4jConnection()) {
-			return neo4j.getUser(entityId);
-		}
+		return neo4j.getUser(entityId);
 	}
 
 	@description(
@@ -95,9 +89,7 @@ public class SOChatAgent extends AbstractAgent implements OpenAIConnection {
 	public Object getUserPosts(
 			@description("The user id to get the posted posts for.") String userId
 			) throws Exception {
-		try(Neo4jConnection neo4j = new Neo4jConnection()) {
-			return neo4j.getUserPosts(userId);
-		}
+		return neo4j.getUserPosts(userId);
 	}
 
 	@description(
@@ -107,9 +99,7 @@ public class SOChatAgent extends AbstractAgent implements OpenAIConnection {
 	public Object getUserComments(
 			@description("The user id to get the posted comments for.") String userId
 			) throws Exception {
-		try(Neo4jConnection neo4j = new Neo4jConnection()) {
-			return neo4j.getUserComments(userId);
-		}
+		return neo4j.getUserComments(userId);
 	}
 
 	@description(
@@ -120,25 +110,25 @@ public class SOChatAgent extends AbstractAgent implements OpenAIConnection {
 	public Object getParentPost(
 			@description("The id of the post (answer) or comment") String entityId
 			) throws Exception {
-		try(Neo4jConnection neo4j = new Neo4jConnection()) {
-			var result = neo4j.getParentPost(entityId);
-			if (result == null) {
-				return "No parent";
-			}
-			return result;
+		var result = neo4j.getParentPost(entityId);
+		if (result == null) {
+			return "No parent";
 		}
+		return result;
 	}
 	
 	public static void main(String[] args) throws Exception {
-		SOChatAgent agent = new SOChatAgent();
-		try(Scanner scanner = new Scanner(System.in);
-			AbstractAgent.AgentThread thread = agent.createThread()) {
-			while (true) {
-				String input = scanner.nextLine();
-				if (input.trim().equalsIgnoreCase("exit")) {
-					break;
+		try(Neo4jConnection neo4j = new Neo4jConnection()) {
+			SOChatAgent agent = new SOChatAgent(neo4j);
+			try(Scanner scanner = new Scanner(System.in);
+				AbstractAgent.AgentThread thread = agent.createThread()) {
+				while (true) {
+					String input = scanner.nextLine();
+					if (input.trim().equalsIgnoreCase("exit")) {
+						break;
+					}
+					System.out.println(thread.promptAgent(input));
 				}
-				System.out.println(thread.promptAgent(input));
 			}
 		}
 	}
